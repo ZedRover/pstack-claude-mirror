@@ -1,0 +1,12 @@
+{
+  "name": "pstack-mirror-builder",
+  "private": true,
+  "description": "Builds the npm mirror package of github.com/michael-denyer/pstack-claude into dist/",
+  "type": "module",
+  "scripts": {
+    "sync": "node scripts/sync.mjs",
+    "sync:main": "node scripts/sync.mjs --ref main",
+    "pack": "npm run sync && cd dist && npm pack --pack-destination ..",
+    "release": "node scripts/sync.mjs --check-registry && node scripts/publish.mjs"
+  }
+}

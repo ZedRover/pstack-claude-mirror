@@ -1,0 +1,32 @@
+name: sync-and-publish
+
+on:
+  schedule:
+    - cron: "17 */6 * * *"   # every 6 hours
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "upstream ref (default: newest vX.Y.Z tag)"
+        required: false
+
+permissions:
+  contents: read
+  id-token: write   # npm provenance (and trusted publishing later)
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+      - id: sync
+        run: node scripts/sync.mjs --check-registry ${{ inputs.ref && format('--ref {0}', inputs.ref) || '' }}
+        env:
+          PKG_NAME: ${{ vars.PKG_NAME || 'pstack-claude-mirror' }}
+      - if: steps.sync.outputs.skip != 'true'
+        run: cd dist && npm pack --dry-run && npm publish --access public --provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
