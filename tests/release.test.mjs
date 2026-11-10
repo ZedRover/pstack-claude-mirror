@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, readdirSync, symlinkSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
 import { componentRow, releaseFixture, tableHeader, version } from "./release-fixture.mjs";
@@ -276,3 +276,12 @@ for (const revision of [0, -1, 1.5, "1", null]) {
     assert.deepEqual(fixture.calls(), []);
   });
 }
+
+test("sync invoked through a symlinked checkout still builds its package", (t) => {
+  const fixture = releaseFixture(t);
+  const alias = join(fixture.directory, "project-alias");
+  symlinkSync(fixture.project, alias, process.platform === "win32" ? "junction" : "dir");
+  const result = fixture.run("../../project-alias/scripts/sync.mjs");
+  succeeds(result);
+  assert.equal(JSON.parse(readFileSync(join(fixture.project, "dist/package.json"), "utf8")).version, version);
+});

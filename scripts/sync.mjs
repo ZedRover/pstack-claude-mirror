@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // node scripts/sync.mjs [--ref <tag|branch|sha>] [--name <npm name>] [--check-registry]
 import { execFileSync } from "node:child_process";
-import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync, appendFileSync, chmodSync, readdirSync, lstatSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync, appendFileSync, chmodSync, readdirSync, lstatSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve, posix } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -224,7 +224,7 @@ export function sync({ ref, name = process.env.PKG_NAME || "pstack-claude-mirror
   }
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
+if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) {
   try { sync(parseReleaseArgs(process.argv.slice(2))); }
   catch (error) {
     console.error(error.message);

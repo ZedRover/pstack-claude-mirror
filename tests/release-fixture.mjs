@@ -1,6 +1,6 @@
 import { execFileSync, spawnSync } from "node:child_process";
-import { chmodSync, cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { devNull, tmpdir } from "node:os";
+import { chmodSync, cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { delimiter, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createRequire } from "node:module";
@@ -12,7 +12,7 @@ export const tableHeader = "| Component | Upstream | Copyright | License | Licen
 export const componentRow = "| Plain component | example | Fixture Author | MIT | [LICENSE](LICENSE) |\n";
 
 export function releaseFixture(t, { files = {}, tag = `v${version}` } = {}) {
-  const directory = mkdtempSync(join(tmpdir(), "pstack-release-"));
+  const directory = realpathSync(mkdtempSync(join(tmpdir(), "pstack-release-")));
   t.after(() => rmSync(directory, { recursive: true, force: true }));
   const project = join(directory, "project");
   const upstream = join(directory, "upstream");
@@ -60,7 +60,7 @@ export function releaseFixture(t, { files = {}, tag = `v${version}` } = {}) {
     npm_config_userconfig: join(home, "user.npmrc"),
     npm_config_globalconfig: join(home, "global.npmrc"),
     GIT_CONFIG_NOSYSTEM: "1",
-    GIT_CONFIG_GLOBAL: devNull,
+    GIT_CONFIG_GLOBAL: join(home, "gitconfig"),
     RELEASE_CALLS: callsPath,
     RELEASE_PUBLICATION: publicationPath,
     RELEASE_VIEW: "absent",

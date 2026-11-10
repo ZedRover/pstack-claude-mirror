@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { execFileSync, spawnSync } from "node:child_process";
 import { chmodSync, cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { devNull, tmpdir } from "node:os";
+import { tmpdir } from "node:os";
 import { delimiter, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { test } from "node:test";
@@ -33,7 +33,7 @@ test("release skips an already published version without publishing residual dis
     mkdirSync(dirname(join(upstream, name)), { recursive: true });
     writeFileSync(join(upstream, name), content);
   }
-  const env = { PATH: `${bin}${delimiter}${process.env.PATH}`, HOME: home, USERPROFILE: home, SystemRoot: process.env.SystemRoot, ComSpec: process.env.ComSpec, PATHEXT: process.env.PATHEXT, NODE_PATH: join(root, "node_modules"), PSTACK_UPSTREAM: upstream, PKG_NAME: "pstack-claude-mirror", npm_config_cache: join(dir, "npm-cache"), GIT_CONFIG_NOSYSTEM: "1", GIT_CONFIG_GLOBAL: devNull };
+  const env = { PATH: `${bin}${delimiter}${process.env.PATH}`, HOME: home, USERPROFILE: home, SystemRoot: process.env.SystemRoot, ComSpec: process.env.ComSpec, PATHEXT: process.env.PATHEXT, NODE_PATH: join(root, "node_modules"), PSTACK_UPSTREAM: upstream, PKG_NAME: "pstack-claude-mirror", npm_config_cache: join(dir, "npm-cache"), GIT_CONFIG_NOSYSTEM: "1", GIT_CONFIG_GLOBAL: join(home, "gitconfig") };
   for (const args of [["init", "-q"], ["add", "."], ["-c", "user.name=Mirror tests", "-c", "user.email=tests@example.invalid", "-c", "commit.gpgsign=false", "commit", "-qm", "fixture"], ["tag", "v1.0.0"]]) {
     execFileSync("git", args, { cwd: upstream, env, stdio: "pipe" });
   }
