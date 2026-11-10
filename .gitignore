@@ -3,3 +3,5 @@ dist/
 *.tgz
 node_modules/
 .omc/
+.audit/
+.pstack-release-*/
